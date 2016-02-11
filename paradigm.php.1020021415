@@ -1,0 +1,88 @@
+<? 
+session_start();
+		$arr=$_SESSION['order'];	
+		$input = $arr;
+		$output = array_slice($input,3);
+		$output2 = array_slice($input,0,3);
+		array_push($output2, " ");
+		$arr = array_merge($output2, $output);
+		$i=$_SESSION['status'];
+		if($i<7)
+		{
+		$test = $arr[$i].".php";
+		$test = strtolower($test);
+		}
+//		if($_SESSION['status'] == 4)
+//		{
+//		include break.php;
+//		}
+//		if($_SESSION['status'] == 10)
+//		{
+//		include done.php;
+//		}else{
+//		include $test;
+//		}
+$order="0";
+switch($_SESSION['status'])
+{
+	case 0:
+		$order="1";
+		include $test;
+		break;
+	case 0.5:
+		$order="2";
+		include $test;
+		break;
+	case 1:
+		$order="1";
+		include $test;
+		break;
+	case 1.5:
+		$order="2";
+		include $test;
+		break;
+	case 2:
+		$order="1";
+		include $test;
+		break;
+	case 2.5:
+		$order="2";
+		include $test;
+		break;
+	case 3:
+		include 'break.php';
+		break;	
+	case 4:
+		$order="3";
+		include $test;
+		break;
+	case 4.5:
+		$order="4";
+		include $test;
+		break;
+	case 5:
+		$order="3";
+		include $test;
+		break;
+	case 5.5:
+		$order="4";
+		include $test;
+		break;
+	case 6:
+		$order="3";
+		include $test;
+		break;
+	case 6.5:
+		$order="4";
+		include $test;
+		break;
+	case 7:
+		include 'done.php';
+		break;
+
+
+
+}
+	
+	$_SESSION['status']+=.5;		
+?>

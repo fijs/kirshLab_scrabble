@@ -1,0 +1,13 @@
+<html>
+<head>
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script>
+$.post( "../timereceive.php?demo_id=645", { func: "getNameAndTime" }, function( data ) {
+  alert( data.timereceive ); // John
+}, "json");
+</script>
+</head>
+<body>
+<div id="test">
+asdf
+</div>

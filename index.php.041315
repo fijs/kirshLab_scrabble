@@ -1,0 +1,199 @@
+<?php 
+	session_start();
+?>
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8" />
+<title>Kirsh Lab</title>
+<link rel="stylesheet" type="text/css" href="css/style.css?<?php echo rand(1,1000000) ?>" media="screen">
+<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,600" rel="stylesheet" type="text/css">
+<!--<script src="myscripts.js"></script>-->
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+</head>
+<body>
+<div id="header">
+	
+	<div style='float: right; padding-right: 20px; padding-top: 25px;'>
+	Kirsh Laboratory [Participant
+<?php
+	// connect to the SQL server
+	$mysqli = new mysqli("localhost","root", "paintFRAME!", "scrabble");
+	if (mysqli_connect_errno()) 
+	{
+		printf("Connect failed: %s\n", mysqli_connect_error());
+		exit();
+	}
+	$query= '';
+	
+	// grab the most recent participant. Result holds mysqli object
+	$result = $mysqli->query("SELECT demographics_id FROM demographics_test ORDER BY demographics_id DESC LIMIT 1");
+	echo "#000";
+	
+	// call fetch_assoc() function from the mysqli object $result and store the row information in an array called $row
+	while ($row = $result->fetch_assoc())
+	{
+		echo $row['demographics_id'] + 1;
+		
+		// store the most recent demographics_id + 1 in a session variable 'demographics_id'
+		$_SESSION['demographics_id']=$row['demographics_id'] + 1;
+	}
+	echo "]  - ";
+	echo date('l jS \of F Y h:i:s A'); 
+	
+	// get the last 20 experiments
+	$sql = "SELECT demographics_id, fname, lname, email, expnum, approved FROM demographics_test ORDER BY demographics_id DESC LIMIT 20";
+	
+	$result = $mysqli->query($sql);
+	
+	// get the last starting point of the iteration sequence
+	$sql2 = "SELECT seq FROM demographics_test ORDER BY demographics_id DESC LIMIT 1";
+	$result2 = $mysqli->query($sql2);
+	while ($row2 = $result2->fetch_assoc())
+	{
+		$_SESSION['beginning']=((int)$row2['seq']);
+	}
+	/*
+	if($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+			echo "<br> demographics_id: ". $row["demographics_id"]. " - Name: ". $row["fname"]. " ". $row["lname"] . "<br>";
+		}
+	}
+	
+	else {
+		echo "0 results";
+	}
+	
+	$expnum = 777;
+	*/
+	
+?>
+	<!-- create the header for the table -->
+	
+	<table border="1" cellspacing="2" cellpadding="3">
+	<tr>
+	<td>
+	<font face="Arial, Helvetica, sans-serif" color="black">demographics_id</font>
+	</td>
+	<td>
+	<font face="Arial, Helvetica, sans-serif" color="black">First Name</font>
+	</td>
+	<td>
+	<font face="Arial, Helvetica, sans-serif" color="black">Last Name</font>
+	</td>
+	<td>
+	<font face="Arial, Helvetica, sans-serif" color="black">Email</font>
+	</td>
+	<td>
+	<font face="Arial, Helvetica, sans-serif" color="black">ExpNum</font>
+	</td>
+	<td>
+	<font face="Arial, Helvetica, sans-serif" color="black">Approved</font>
+	</td>
+	</tr>
+
+<?php
+	if($result->num_rows > 0) {
+		while($row = $result->fetch_assoc()) {
+		
+			$demo_id = $row["demographics_id"];
+			$fname = $row["fname"];
+			$lname = $row["lname"];
+			$email = $row["email"];
+			$expnum = $row["expnum"];
+			$approved = $row["approved"];
+			
+?>
+	<tr>
+	<td>
+	<font face="Arial, Helvetica, sans-serif" color="black"><?php echo $demo_id; ?></font>
+	</td>
+	<td>
+	<font face="Arial, Helvetica, sans-serif" color="black"><?php echo $fname; ?></font>
+	</td>
+	<td>
+	<font face="Arial, Helvetica, sans-serif" color="black"><?php echo $lname; ?></font>
+	</td>
+	<td>
+	<font face="Arial, Helvetica, sans-serif" color="black"><?php echo $email; ?></font>
+	</td>
+	<td>
+	<font face="Arial, Helvetica, sans-serif" color="black"><?php echo $expnum; ?></font>
+	</td>
+	<td>
+	<input type="checkbox" id="<?php echo $demo_id; ?>" name="approved" onclick="updateSQL(id)">
+	</td>
+	</tr>
+	
+	<font color="black"><p id="display_message"></p></font>
+	<font color="black"><p id="test"></p></font>
+	
+<script>
+	var x = document.getElementById("<?php echo $demo_id; ?>");
+	if(<?php echo $approved; ?>) {
+		x.checked = true;
+	}
+</script>
+	
+<?php	
+ }}
+ ?>
+ 
+ <script>
+	function updateSQL(id) {
+		var box = document.getElementById(id);
+		
+		if(box.checked == true) {
+			/*Don't need this */
+			/*document.getElementById("display_message").innerHTML = "Participant with demographics_id: " + id + " is approved"; */
+			var request = $.ajax({
+				url: "approve.php",
+				type: "POST",
+				data: {demo_id : id}
+			});
+			
+			request.done(function(msg) {
+				$("#mybox").html(msg);
+			});
+			
+			request.fail(function(jqXHR, textStatus) {
+				alert("Request failed: " + textStatus);
+			});
+		}
+		
+		else {
+			/*Don't need this */
+			/*document.getElementById("display_message").innerHTML = "Participant with demographics_id: " + id + " is NOT approved"; */
+			var request = $.ajax({
+				url: "disapprove.php",
+				type: "POST",
+				data: {demo_id : id}
+			});
+			
+			request.done(function(msg) {
+				$("#mybox").html(msg);
+			});
+			
+			request.fail(function(jqXHR, textStatus) {
+				alert("Request failed: " + textStatus);
+			});
+		}
+	}
+ </script>
+	
+	</div>
+</div>
+<div id="container">
+<h1>
+<font color="black">Experiment Number:</font>
+</h1>
+<form action="demo.php" method="POST" name="demo">
+		<!-- <input name="expnum" type="text" class="" placeholder="expnum" /> -->
+		<!-- <input name="expnum" type="hidden" value="<?=$expnum ?>" /> -->
+		<!-- <input name="groupnum" type="text" class="" placeholder="groupnum" /> -->
+	 <input type="submit" value="NEXT" id="button-blue"/>
+    </form>
+	<p><br></p>
+	<font color="black"><div id="mybox">
+	</div><font>
+</center>
