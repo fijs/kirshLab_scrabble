@@ -1,14 +1,13 @@
 <?php 
+
+// Start session 
 session_start();
-
-// connect to databse
-$mysqli = new mysqli("localhost","root", "paintFRAME!", "scrabble");
-if (mysqli_connect_errno()) 
-	{
-		printf("Connect failed: %s\n", mysqli_connect_error());
-		exit();
-	}
-
+//store qid in session
+$_SESSION['qid']=$_GET['qid'];
+echo "before config";
+// import configuration settings
+require 'configuration.php';
+echo "after config";
 // grab the most recent participant. Result holds mysqli object
 $result = $mysqli->query("SELECT demographics_id FROM demographics_test ORDER BY demographics_id DESC LIMIT 1");
 
@@ -19,13 +18,16 @@ while ($row = $result->fetch_assoc())
 	$_SESSION['demographics_id']=$row['demographics_id'] + 1;
 }
 
+
+
 // insert qualtrics id to database
 $query= "INSERT INTO `qualtrics`(`demographics_id`, `qualtrics_id`) VALUES ('".$_SESSION['demographics_id']."','".$_GET['qid']."')";
 $mysqli->query($query); 
 
-// save qid to SESSION
+// Save qid to SESSION. This will be used as session value for purposes of validating an experiment
 $_SESSION['qid'] = $_GET['qid'];
 
+var_dump($_GET);
 // determine the groupnum
 $_SESSION['groupnum'] = 1;
 
@@ -97,8 +99,18 @@ $mysqli->query($query);
 
 // set the variable that checks if the user has finished the experiment
 $_SESSION['timed_out'] = 1;
+
+// create session variables for current page and last visited page
+$_SESSION['current']=1;
+$_SESSION['last']=1;
+
+// Redirect to instruct.php
+header('Location: instruct.php');
+
 ?>
 
+<!-- 
 <script>
-	window.top.location.href="http://caffeine.ucsd.edu/scrabble/instruct.php";
+	window.top.location.href="instruct.php";
 </script>
+ -->

@@ -1,4 +1,29 @@
-<? session_start(); ?>
+<?php		
+	session_start();
+	// Check if they come from qualtrics.php (which is where we redirect from the qualtrics survey 
+	if(!isset($_SESSION['qid']))
+    {
+    	header("location: index.php");
+    }
+	require 'configuration.php';
+	$_SESSION['current']=3;
+	if($_SESSION['current'] <= $_SESSION['last']){
+			// delete data
+			$delete_q = "DELETE FROM `demographics_test` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data-input` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `qualtrics` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			session_destroy();
+			header("location: index.php");
+	}
+	$_SESSION['last']=3;
+    
+ 	$stim=array("S", "A", "M","P","L","E","S");
+?>
 
 <!doctype html>
 <html lang="en">
@@ -92,8 +117,12 @@ label {
 
 input[type="text"] {
     width: 200px;
-    height: 20px;
-    font-size: 18px;
+    height: 30px;
+
+
+
+
+    font-size: 14px;
 }
 
 #enterinfo {
@@ -104,24 +133,6 @@ input[type="text"] {
 	}
 </style>
 
-<? 
-	// //session_start();
-// 	$mysqli = new mysqli("localhost","root", "paintFRAME!", "scrabble");
-// 	if (mysqli_connect_errno()) 
-// 	{
-// 		printf("Connect failed: %s\n", mysqli_connect_error());
-// 		exit();
-// 	}
-	//creates a php array called stim, containing letters of 'SAMPLES'
- 	$stim=array("S", "A", "M","P","L","E","S");
-// 	//$order=rand(1,12); 
-// 	//$result = $mysqli->query("SELECT * FROM  `A` WHERE  `order` ='".$order."'");
-// 	//while ($row = $result->fetch_assoc())
-// 	//{
-// 	//	$stim=str_split($row['stim']);
-// 	//}
-?>
-
 <link rel="stylesheet" type="text/css" href="css/style.css?<?php echo rand(1,1000000) ?>" media="screen">
 
 
@@ -130,9 +141,9 @@ input[type="text"] {
 <script type="text/javascript">
 /*uses javascript with nested php to convert each php element in the array to a javascript variable-*/
 var stims = '<?php echo $stim[0]; ?>'+','+'<?php echo $stim[1]; ?>'+','+'<?php echo $stim[2]; ?>'+','+'<?php echo $stim[3]; ?>'+','+'<?php echo $stim[4]; ?>'+','+'<?php echo $stim[5]; ?>'+','+'<?php echo $stim[6]; ?>';
-//Should be 180 for max and 170 for show
-var maxSecs = 5,
-	maxShowSecs = 3;
+//Should be 180 for max and 170 for show (these now come from configuration)
+//var maxSecs = 5,
+	//maxShowSecs = 3;
 //gets the current date/time and saves it into start variable.
 var start = new Date().getTime(),
     time = 0,
@@ -213,7 +224,9 @@ $(document).ready(function(e){
     		//$("#debug").text(inputValue);
 			
 			//processInput(inputValue);
+			if(e.keyCode == 13){
         	document.getElementById("inputBox").value = "";
+			}
         }
 		document.getElementById("inputBox").focus();
     });
@@ -232,6 +245,7 @@ function askConfirm() {
 
 function setWarningOff() {
 	needToConfirm = false;
+	
 }
 
 /*var stim = [
@@ -277,13 +291,13 @@ margin-bottom: 40px; margin-top: 50px;">This is the practice session for the sta
 <!-- uses php and a loop to continuously create an unordered list (ul) items consisting of the letters in stim array (SAMPLES)-->
 <ul id="sortable">
 <?php 
-$start_li="<li class='ui-state-default'>";
-$close_li="</li>";
-$i = 0;
-while ($i<=6) {
-echo $start_li.$stim[$i].$close_li;
-$i++;
-}
+	$start_li="<li class='ui-state-default'>";
+	$close_li="</li>";
+	$i = 0;
+	while ($i<=6) {
+	echo $start_li.$stim[$i].$close_li;
+	$i++;
+	}
 ?>
 
 <!--I believe its the button for the inputs -->
@@ -319,7 +333,6 @@ Type a word and press enter
 </center>
 <audio autoplay>
   <source src="static.mp3" type="audio/ogg">
-
 </audio>
 </body>
 </html>

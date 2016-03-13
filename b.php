@@ -83,7 +83,7 @@
 
 input[type="text"] {
     width: 200px;
-    height: 20px;
+    height: 30px;
     font-size: 18px;
 }
 #enterinfo {
@@ -109,15 +109,38 @@ input[type="text"] {
   </style>
 
 
-<?php 
-	$array=array(" ", " ", " "," "," "," "," ", "-", "--"); 
-shuffle($array);
-	$mysqli = new mysqli("localhost","root", "paintFRAME!", "scrabble");
-	if (mysqli_connect_errno()) 
+<?php
+
+	//session start is a key php variable
+	session_start();
+	// Check if they come from qualtrics.php (which is where we redirect from the qualtrics survey) 
+	if(!isset($_SESSION['expKey']))
 	{
-		printf("Connect failed: %s\n", mysqli_connect_error());
-		exit();
+		header("location: index.php");
 	}
+	require 'configuration.php';
+	/*$_SESSION['current']=7;
+	if($_SESSION['current'] != $_SESSION['last']){
+			// delete data
+			$delete_q = "DELETE FROM `demographics_test` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data-input` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `qualtrics` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			session_destroy();
+			header("location: index.php");
+	}
+	$_SESSION['last']=7;*/
+	
+	$array=array(" ", " ", " "," "," "," "," ", "-", "--"); 
+	shuffle($array);
+	
+	// Connect to db
+	require 'configuration.php';
+	
 	$stim=array("S", "A", "M","P","L","E","S"); 
 	$result = $mysqli->query("SELECT * FROM  `B` WHERE  `order` ='".$order."' AND `group` ='".$_SESSION['groupnum']."'");
 	$stim_original = $mysqli->query("SELECT * FROM  `B` WHERE  `order` ='".$order."' AND `group` ='".$_SESSION['groupnum']."'")->fetch_object()->word;
@@ -134,8 +157,8 @@ shuffle($array);
 <script type="text/javascript">
  
 //Should be 180 for max and 170 for show
-var maxSecs = 5,
-	maxShowSecs = 3; 
+//var maxSecs = 5,
+//	maxShowSecs = 3; 
  
 var start = new Date().getTime(),
     time = 0,
@@ -167,8 +190,10 @@ $(document).ready(function(e){
     		// for debug only
     		//$("#debug").text(inputValue);
 			
-			processInput(inputValue);
-        	document.getElementById("inputBox").value = "";
+			if(e.keyCode == 13){
+				processInput(inputValue);
+				document.getElementById("inputBox").value = "";
+			}
         }
 		document.getElementById("inputBox").focus();
     });

@@ -1,4 +1,35 @@
-<?		session_start(); ?>
+<?php 
+	session_start(); 
+	// Check if they come from qualtrics.php (which is where we redirect from the qualtrics survey  
+	if(!isset($_SESSION['qid']))
+    {
+    	header("location: index.php");
+    }
+	
+	 // Set experiment key to be checked through the experiment
+    $_SESSION['expKey'] = 'DINGLEDONGLES';
+	
+	require 'configuration.php';
+	$_SESSION['current']=6;
+	if($_SESSION['current'] <= $_SESSION['last']){
+			// delete data
+			$delete_q = "DELETE FROM `demographics_test` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data-input` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `qualtrics` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			session_destroy();
+			header("location: index.php");
+	}
+	$_SESSION['last']=6;
+	
+   
+	
+?>
+
 <!DOCTYPE html>
 <!-- this page is pretty self explanatory. just loads the begin button -->
 
@@ -50,38 +81,26 @@ function setWarningOff() {
 </script>
 
 <body>
-<div id="header">
-	
+<div id="header">	
 	<div style='float: right; padding-right: 20px; padding-top: 25px;'>
 	Kirsh Laboratory [Participant
-<?php
-/*
-	$mysqli = new mysqli("localhost","root", "paintFRAME!", "scrabble");
-	if (mysqli_connect_errno()) 
-	{
-		printf("Connect failed: %s\n", mysqli_connect_error());
-		exit();
-	}
-	$query= '';
-	$result = $mysqli->query("SELECT demographics_id FROM demographics ORDER BY demographics_id DESC LIMIT 1");
-	echo "#000";
-	while ($row = $result->fetch_assoc())
-	{
-		echo $row['demographics_id'];
-	}
-	*/
-	echo $_SESSION['demographics_id'];
-	echo "]  - ";
-	echo date('l jS \of F Y h:i:s A'); 
+	<?php
+		echo $_SESSION['demographics_id'];
+		echo "]  - ";
+		echo date('l jS \of F Y h:i:s A'); 
 	?>
 	</div>
 </div>
-
 
 <center>
 <br><br><br><br><br><br><br><br><br>
 <h1>Press the begin button to start.</h1>
 <br><br><br>
+
+<!-- 
+Until now, we had been manually controlling where the experiment went. 
+And here we finally pass control to experiment.php
+ -->
 <div style=clear:both></div>
 <a href=experiment.php><button type="button" style="
   background-color: green;

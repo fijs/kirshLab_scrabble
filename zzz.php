@@ -1,6 +1,6 @@
 <?php
-echo "Testing email out to: mtakemot@ucsd.edu";
-$to = "t4kmode@gmail.com";
+echo "Testing email out to: mga.allen@gmail.com";
+$to = "mga.allen@gmail.com";
 $subject = "HTML email";
 
 $message = "

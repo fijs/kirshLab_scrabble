@@ -129,13 +129,15 @@ margin-bottom: 30px;"
 
 <?php 
 	$array=array( "A", "P", "R","I","Y","N","G", "-"); 
-	/* php query to the database*/
-	$mysqli = new mysqli("localhost","root", "paintFRAME!", "scrabble");
-	if (mysqli_connect_errno()) 
-	{
-		printf("Connect failed: %s\n", mysqli_connect_error());
-		exit();
-	}
+	
+	// import configuration settings
+	require 'configuration.php';
+//	$mysqli = new mysqli("localhost","root", "paintFRAME!", "scrabble");
+	//if (mysqli_connect_errno()) 
+	//{
+		//printf("Connect failed: %s\n", mysqli_connect_error());
+	//	exit();
+	//}
 	$stim=array("A", "P", "R","I","Y","N","G"); 
 ?>
 
@@ -143,8 +145,8 @@ margin-bottom: 30px;"
 <script type="text/javascript">
 
 //Should be 180 for max and 170 for show
-var maxSecs = 5,
-	maxShowSecs = 3;
+//var maxSecs = 5,
+	//maxShowSecs = 3;
 
 var start = new Date().getTime(),
     time = 0,

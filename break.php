@@ -1,6 +1,29 @@
 <?php
+	// Check if they come from begin.php (which is where we redirect from the qualtrics survey) 
+	if(!isset($_SESSION['expKey']))
+	{
+		header("location: index.php");
+	}	
 	$_SESSION['status']+=.5;
 	$_SESSION['timed_out'] = 1;	
+	
+	/*require 'configuration.php';
+	$_SESSION['current']=7;
+	if($_SESSION['current'] != $_SESSION['last']){
+			// delete data
+			$delete_q = "DELETE FROM `demographics_test` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data-input` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `qualtrics` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			session_destroy();
+			header("location: index.php");
+	}
+	$_SESSION['last']=7;*/
+	
 ?>
 
 <!DOCTYPE html>
@@ -10,6 +33,7 @@
 <title>Kirsh Lab</title>
 <link rel="stylesheet" type="text/css" href="css/style.css?<?php echo rand(1,1000000) ?>" media="screen">
 <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,600" rel="stylesheet" type="text/css">
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
 <script src="js.js"></script>
 <style>
 #tiletype {
@@ -91,12 +115,14 @@ window.setTimeout(instance, 100);
 	<div style='float: right; padding-right: 20px; padding-top: 25px;'>
 	Kirsh Laboratory [Participant
 <?php
+require 'configuration.php';
+/*
 	$mysqli = new mysqli("localhost","root", "paintFRAME!", "scrabble");
 	if (mysqli_connect_errno()) 
 	{
 		printf("Connect failed: %s\n", mysqli_connect_error());
 		exit();
-	}
+	}*/
 	$query= '';
 	$result = $mysqli->query("SELECT demographics_id FROM demographics ORDER BY demographics_id DESC LIMIT 1");
 	echo "#000";

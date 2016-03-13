@@ -1,7 +1,65 @@
-	<?		session_start(); ?>
+<?php		
+	session_start();
+	// Check if they come from qualtrics.php (which is where we redirect from the qualtrics survey 
+	if(!isset($_SESSION['qid']))
+    {
+    	header("location: index.php");
+    }
+	require 'configuration.php';
+	
+	/*$last = $_SESSION['last'];
+	$output = "<script>console.log( 'LAST VISITED: " . $last . "' );</script>";
+	$curr = $_SESSION['current'];
+	$output2 = "<script>console.log( 'CURRENT INDEX: " . $curr . "' );</script>";
+	echo $output2;
+	echo $output;*/
+	$_SESSION['current']=2;
+	if($_SESSION['current'] <= $_SESSION['last']){
+		//$output="<script>console.log( 'test' );</script>";
+		//echo $output;
+			// delete data
+			$delete_q = "DELETE FROM `demographics_test` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data-input` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `qualtrics` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			
+			//echo "<script>console.log( 'test2222' );</script>";
+			session_destroy();
+			//echo "<script>console.log( '3333' );</script>";
+			header("location: index.php");
+	}
+		
+	$_SESSION['last']=2;
+		
+		/*
+	// check if user refreshed or backspaced or closed/reopened tab
+	if($_SESSION['current']==1){
+		if($_SESSION['current'] <= $_SESSION['last']){
+			// delete data
+			$delete_q = "DELETE FROM `demographics_test` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data-input` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `qualtrics` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			session_destroy();
+			header("location: index.php");
+		}
+		else{
+			$_SESSION['current'] = 2;
+		}
+		
+		
+	}*/
+?>
+
 <!DOCTYPE html>
-
-
 <html lang="en-US">
 <head>
 <meta charset="UTF-8" />
@@ -13,6 +71,7 @@
 <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 <script src="touchpunch.js"></script>
 <script src="js.js"></script>
+
 <style>
 
 div.lists {
@@ -21,7 +80,8 @@ div.lists {
    margin-right: auto; 
    margin-bottom: 30px; 
 } 
-	ul{
+
+ul{
 		
     font-size: 24px;
 	 margin: 0; 
@@ -33,8 +93,7 @@ div.lists {
 	margin-bottom: 3px;
 }
 
-
-	</style>
+</style>
 </head>
 
 <script type="text/javascript">
@@ -54,36 +113,20 @@ function askConfirm() {
 
 function setWarningOff() {
 	needToConfirm = false;
+	
 }
 
 </script>
 
 <body>
 <div id="header">
-	
 	<div style='float: right; padding-right: 20px; padding-top: 25px;'>
-	Kirsh Laboratory [Participant
-<?php
-	require 'configuration.php';
-/*
-	$mysqli = new mysqli("localhost","root", "paintFRAME!", "scrabble");
-	if (mysqli_connect_errno()) 
-	{
-		printf("Connect failed: %s\n", mysqli_connect_error());
-		exit();
-	}
-	*/
-	$query= '';
-	$result = $mysqli->query("SELECT demographics_id FROM demographics ORDER BY demographics_id DESC LIMIT 1");
-	echo "#000";
-	while ($row = $result->fetch_assoc())
-	{
-		echo $row['demographics_id'];
-	}
-	
-	echo $_SESSION['demographics_id'];
-	echo "]  - ";
-	echo date('l jS \of F Y h:i:s A'); 
+	Kirsh Laboratory Participant
+	<?php
+		require 'configuration.php';
+		echo $_SESSION['demographics_id'];
+		echo "]  - ";
+		echo date('l jS \of F Y h:i:s A'); 
 	?>
 	</div>
 </div>

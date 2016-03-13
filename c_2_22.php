@@ -1,52 +1,3 @@
-<?php
-	
-	//session start is a key php variable
-	session_start();
-	// Check if they come from qualtrics.php (which is where we redirect from the qualtrics survey) 
-	if(!isset($_SESSION['expKey']))
-	{
-		header("location: index.php");
-	}
-
-	require 'configuration.php';
-	/*$_SESSION['current']=7;
-	if($_SESSION['current'] != $_SESSION['last']){
-			// delete data
-			$delete_q = "DELETE FROM `demographics_test` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
-			$mysqli->query($delete_q);
-			$delete_q = "DELETE FROM `data` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
-			$mysqli->query($delete_q);
-			$delete_q = "DELETE FROM `data-input` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
-			$mysqli->query($delete_q);
-			$delete_q = "DELETE FROM `qualtrics` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
-			$mysqli->query($delete_q);
-			session_destroy();
-			header("location: index.php");
-	}
-	$_SESSION['last']=7;*/
-	
-	$result = $mysqli->query("SELECT * FROM  `C` WHERE  `order` ='".$order."' AND `group` ='".$_SESSION['groupnum']."'");
-	$stim_original = $mysqli->query("SELECT * FROM  `C` WHERE  `order` ='".$order."' AND `group` ='".$_SESSION['groupnum']."'")->fetch_object()->word;
-
-	
-	/*while ($row = $result->fetch_assoc())
-	{
-		
-		echo "stim2.push('".$row['stim']."');"."\r\n";
-		
-
-	}xml_error_string	*/
-	
-	
-	$result = $mysqli->query("SELECT * FROM  `C` WHERE  `order` ='".$order."' AND `group` ='".$_SESSION['groupnum']."' AND `shuffle`=1");
-	while ($row = $result->fetch_assoc())
-	{
-		$stim=str_split($row['stim']);
-	}
-	
-	$_SESSION['shuffle'] = $_SESSION['shuffle'] + 1;
-?>
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -141,15 +92,12 @@ label {
 
 input[type="text"] {
     width: 200px;
-    height: 30px;
+    height: 20px;
     font-size: 18px;
 }
 </style>
-
- 	
+  	
 <script type="text/javascript">
-/** michio 2/26 **/
-var stims = '<?php echo $stim[0].','.$stim[1].','.$stim[2].','.$stim[3].','.$stim[4].','.$stim[5].','.$stim[6]; ?>';
 
 //Should be 180 for max and 170 for show
 //var maxSecs = 5,
@@ -248,6 +196,33 @@ window.setTimeout(instance, 100);
 
 var count=0;
 var stim2 =[];
+
+<?php
+
+	// import configuration settings
+	require 'configuration.php';
+
+	$stim = [];
+
+	$result = $mysqli->query("SELECT * FROM  `C` WHERE  `order` ='".$order."' AND `group` ='".$_SESSION['groupnum']."'");
+	$stim_original = $mysqli->query("SELECT * FROM  `C` WHERE  `order` ='".$order."' AND `group` ='".$_SESSION['groupnum']."'")->fetch_object()->word;
+
+	while ($row = $result->fetch_assoc())
+	{
+		
+		echo "stim2.push('".$row['stim']."');"."\r\n";
+
+	}
+
+	$result = $mysqli->query("SELECT * FROM  `C` WHERE  `order` ='".$order."' AND `group` ='".$_SESSION['groupnum']."' AND `shuffle`=1");
+	while ($row = $result->fetch_assoc())
+	{
+		$stim=str_split($row['stim']);
+	}
+	
+	$_SESSION['shuffle'] = $_SESSION['shuffle'] + 1;
+?>
+
 function sleep(milliseconds) {
   var start = new Date().getTime();
   for (var i = 0; i < 1e7; i++) {
@@ -257,25 +232,16 @@ function sleep(milliseconds) {
   }
 }
 
-function shufflearr(o){ //v1.0
-    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-    return o;
-}
-
 var lastshuffle=0;
 function maybeshuffle(){
-	
-//var temp = stim2[count];
-var temp = "<?php echo $stim[0].','.$stim[1].','.$stim[2].','.$stim[3].','.$stim[4].','.$stim[5].','.$stim[6]; ?>";
-var stim = temp.split(",");
-shufflearr(stim);
+
 if(count>94){
   count=0;
 }
 
-
+temp = stim2[count];
 count++;
-
+stim = temp.split("");
 
 document.getElementById('letters').innerHTML = "<ul id='sortable'><li class='ui-state-default'>"
                                                +stim[0]+"</li><li class='ui-state-default'>"+stim[1]+"</li><li class='ui-state-default'>"
@@ -297,8 +263,8 @@ document.getElementById('letters').innerHTML = "<ul id='sortable'><li class='ui-
   mydiv.appendChild(document.createElement("hr"));
   mydiv.appendChild(document.createElement("br"));
 
-
-  $("#info").load("process-c.php?stim="+outputme+"&time="+totalSeconds+"&status="+'<?php echo $_SESSION['status']; ?>'); 
+  $("#info").load("process-c.php?stim="+outputme+"&time="+totalSeconds+
+  "&status=<?php echo $_SESSION['status']; ?>"); 
   
   lastshuffle = totalSeconds=performance.now() / 1000;
   document.getElementById("inputBox").focus();
@@ -336,30 +302,19 @@ $("input").keypress(function(e){
   // for debug only
   //$("#debug").text(inputValue);
   // filter out the empty input
-  if(e.keyCode == 13){
-	  if(inputValue != "") {
-				processInput(inputValue);
-				document.getElementById("inputBox").value = "";
-	  }
-  }
-  }
- /* if(inputValue != "") {
+  if(inputValue != "") {
     processInput(inputValue);
   }
   document.getElementById("inputBox").value = "";
-  }*/
+  }
   document.getElementById("inputBox").focus();
   });
 
 });
 
 function load() {
-	var tempstim = "<?php echo $stim[0].','.$stim[1].','.$stim[2].','.$stim[3].','.$stim[4].','.$stim[5].','.$stim[6]; ?>";
-	var tempstatus = "&time=0&status=<?php echo $_SESSION['status']; ?>";
-	var test = tempstim+tempstatus;
-	$('#info').load("process-c.php?stim="+test);
-  /*$("#info").load("process-c.php?stim='<?php echo $stim[0].','.$stim[1].','.$stim[2].','.$stim[3].','.$stim[4].','.$stim[5].','.$stim[6]; ?>
-	'&time=0&status=<?php echo $_SESSION['status']; ?>'); */
+  $("#info").load("process-c.php?stim='<?php echo $stim[0].','.$stim[1].','.$stim[2].','.$stim[3].','.$stim[4].','.$stim[5].','.$stim[6]; ?>
+  '&time=0&status = <?php echo $_SESSION['status']; ?>"); 
 }
 
 function shiftFocus() {
@@ -466,18 +421,17 @@ Type word and press enter
 </div>
 <div style="clear:both"></div>
 <br><br>
-<!--<center>-->
+<center>
 <div id="seconds2">0</div>
 
-<div id="log"><?php echo $stim[0].", ".$stim[1].", ".$stim[2].", ".$stim[3].", ".$stim[4].", ".$stim[5].", ".$stim[6]." 0.0";
-?>
-
+<div id="log">
+<?php echo $stim[0].", ".$stim[1].", ".$stim[2].", ".$stim[3].", ".$stim[4].", ".$stim[5].", ".$stim[6]." 0.0";?>
 </div>
+
 <br><br><br><br><br>
 
 <audio autoplay>
   <source src="shuffle.mp3" type="audio/ogg">
-
 </audio>
 
 </body>

@@ -1,4 +1,28 @@
-<? session_start(); ?>
+<?php 
+	session_start(); 
+	// Check if they come from qualtrics.php (which is where we redirect from the qualtrics survey 
+	if(!isset($_SESSION['qid']))
+    {
+    	header("location: index.php");
+    }
+	require 'configuration.php';
+	$_SESSION['current']=5;
+	if($_SESSION['current'] <= $_SESSION['last']){
+			// delete data
+			$delete_q = "DELETE FROM `demographics_test` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data-input` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `qualtrics` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			session_destroy();
+			header("location: index.php");
+	}
+	$_SESSION['last']=5;
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -97,8 +121,8 @@
 
 input[type="text"] {
     width: 200px;
-    height: 20px;
-    font-size: 18px;
+    height: 30px;
+    font-size: 14px;
 }
 #enterinfo {
 	margin-right: auto;
@@ -111,12 +135,12 @@ input[type="text"] {
 	margin-left: auto;
 }
 </style>
-  
+
 <script type="text/javascript">
 
 //Should be 180 for max and 170 for show
-var maxSecs = 5,
-	maxShowSecs = 3;
+//var maxSecs = 5,
+	//maxShowSecs = 3;
 
 var start = new Date().getTime(),
     time = 0,
@@ -200,7 +224,9 @@ $(document).ready(function(e){
     		//$("#debug").text(inputValue);
 			
 			//processInput(inputValue);
+			if(e.keyCode == 13){
         	document.getElementById("inputBox").value = "";
+			}
         }
 		document.getElementById("inputBox").focus();
     });
@@ -304,23 +330,24 @@ Practice session for the shuffle condition</div><div style="clear:both"></div>
 <ul id="sortable">
 
 <?php 
-$stim=array("N", "E", "T","W","O","R","K"); 
-shuffle($stim);
-$start_li="<li class='ui-state-default'>";
-$close_li="</li>";
-$i = 0;
-while ($i<=6) {
-echo $start_li.$stim[$i].$close_li;
-//if ($i==2){
-//	   echo "<li id='blank'> </li>";
-//}
-//if ($i==3){
-//	   echo "<li id='blank'> </li>";
-//}
+	$stim=array("N", "E", "T","W","O","R","K"); 
+	shuffle($stim);
+	$start_li="<li class='ui-state-default'>";
+	$close_li="</li>";
+	$i = 0;
+	while ($i<=6) {
+	echo $start_li.$stim[$i].$close_li;
+	//if ($i==2){
+	//	   echo "<li id='blank'> </li>";
+	//}
+	//if ($i==3){
+	//	   echo "<li id='blank'> </li>";
+	//}
 
-$i++;
-}
+	$i++;
+	}
 ?>
+
 </ul>
 </div>
 
@@ -354,15 +381,11 @@ Type word and press enter
     border:none;" onclick="setWarningOff()">Next</button></a>
 </div>
 <div id="log"><?php echo $stim[0].", ".$stim[1].", ".$stim[2].", ".$stim[3].", ".$stim[4].", ".$stim[5].", ".$stim[6]." 0.0";
-?>
-
-</div>
+?></div>
 
 <audio autoplay>
   <source src="shuffle.mp3" type="audio/ogg">
-
 </audio>
-
 
 </body>
 </html>

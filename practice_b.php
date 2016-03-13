@@ -1,4 +1,31 @@
-<? session_start(); ?>
+<?php 
+	session_start(); 
+	// Check if they come from qualtrics.php (which is where we redirect from the qualtrics survey 
+	if(!isset($_SESSION['qid']))
+    {
+    	header("location: index.php");
+    }
+	
+	require 'configuration.php';
+	$_SESSION['current']=4;
+	if($_SESSION['current'] <= $_SESSION['last']){
+			// delete data
+			$delete_q = "DELETE FROM `demographics_test` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `data-input` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			$delete_q = "DELETE FROM `qualtrics` WHERE `demographics_id`='".$_SESSION['demographics_id']."'";
+			$mysqli->query($delete_q);
+			session_destroy();
+			header("location: index.php");
+	}
+	$_SESSION['last']=4;
+	
+	$array=array("-", "A", "P", "R","I","Y","N","G", "--"); 
+	$stim=array("A", "P", "R","I","Y","N","G");
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -80,7 +107,7 @@
 width: 62%; 
 margin-left: 225px; 
 margin-right: auto; 
-margin-bottom: 30px;"
+margin-bottom: 30px;
   }
  #next {
    display: none;
@@ -98,8 +125,8 @@ margin-bottom: 30px;"
 
  input[type="text"] {
    width: 200px;
-   height: 20px;
-   font-size: 18px;
+   height: 30px;
+   font-size: 14px;
  }
  
  #enterinfo {
@@ -124,27 +151,15 @@ margin-bottom: 30px;"
    display: none;
  }
 
-  </style>
-  <!-- php code to create an array called 'array' containing the letters of 'PRAYING'-->
-
-<?php 
-	$array=array("-", "A", "P", "R","I","Y","N","G", "--"); 
-	/* php query to the database*/
-	$mysqli = new mysqli("localhost","root", "paintFRAME!", "scrabble");
-	if (mysqli_connect_errno()) 
-	{
-		printf("Connect failed: %s\n", mysqli_connect_error());
-		exit();
-	}
-	$stim=array("A", "P", "R","I","Y","N","G"); 
-?>
+</style>
+<!-- php code to create an array called 'array' containing the letters of 'PRAYING'-->
 
 <!-- the following javascript functions are similar to practice_a.php functiosn where you can refer to for comments -->
 <script type="text/javascript">
 
 //Should be 180 for max and 170 for show
-var maxSecs = 5,
-	maxShowSecs = 3;
+//var maxSecs = 5,
+	//maxShowSecs = 3;
 
 var start = new Date().getTime(),
     time = 0,
@@ -224,7 +239,9 @@ $(document).ready(function(e){
     		//$("#debug").text(inputValue);
 			
 			//processInput(inputValue);
+			if(e.keyCode == 13){
         	document.getElementById("inputBox").value = "";
+			}
         }
 		document.getElementById("inputBox").focus();
     });
@@ -327,27 +344,26 @@ Practice session for the interactive condition</div>
 <ul id="sortable">
 
 
-<?php
- 
-$close_li="</li>";
-$i = 0;
-/*displays the 'PRAYING' letters contained in 'array '*/
-while ($i<=8) {
-if($array[$i]=="-" || $array[$i]=="--"){
-$start_li="<li class='blank' onmousedown=\"asdf('".$array[$i]."_blank')\" id='let_".$i."'>";
-	}else{
-$start_li="<li class='ui-state-default' onmousedown=\"asdf('".$array[$i]."')\" id='let_".$i."'>";
-}
-echo $start_li.$array[$i].$close_li;
-//if ($i==2){
-//	   echo "<li name='test' id='blank'> </li>";
-//}
-//if ($i==3){
-//	   echo "<li id='blank'> </li>";
-//}
+<?php 
+	$close_li="</li>";
+	$i = 0;
+	/*displays the 'PRAYING' letters contained in 'array '*/
+	while ($i<=8) {
+	if($array[$i]=="-" || $array[$i]=="--"){
+	$start_li="<li class='blank' onmousedown=\"asdf('".$array[$i]."_blank')\" id='let_".$i."'>";
+		}else{
+	$start_li="<li class='ui-state-default' onmousedown=\"asdf('".$array[$i]."')\" id='let_".$i."'>";
+	}
+	echo $start_li.$array[$i].$close_li;
+	//if ($i==2){
+	//	   echo "<li name='test' id='blank'> </li>";
+	//}
+	//if ($i==3){
+	//	   echo "<li id='blank'> </li>";
+	//}
 
-$i++;
-}
+	$i++;
+	}
 ?>
 
 </ul>

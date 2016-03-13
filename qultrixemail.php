@@ -5,5 +5,5 @@
 	
 	echo "content: ". $msg;
 	
-	mail("michio.prosci@gmail.com", "subject", $msg);
+	mail("mga.allen@gmail.com", "subject", $msg);
 ?>
